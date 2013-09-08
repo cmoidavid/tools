@@ -23,7 +23,7 @@ while getopts "do:" opt; do
   esac
 done
 
-if [ -d $OUTPUT_DIR ]; then
+if [ -d "$OUTPUT_DIR" ]; then
 	echo "Output dir ($OUTPUT_DIR) allready exists!"
 	exit 1;
 fi
@@ -39,7 +39,7 @@ do
 	NAME=$(exif -m "$i" | perl -lne 'print "$1-$2-$3_$4.$5.$6" if /Date and Time \(Original\)\t(\d+):(\d+):(\d+) (\d+):(\d+):(\d+)/')
 	if [ $? -eq 1 -o -z "$NAME" ]; then
 		echo "exif failed, try exiv2..."
-		NAME==$(exiv2 -m "$i" | perl -lne 'print "$1-$2-$3_$4.$5.$6" if /Image timestamp : (\d+):(\d+):(\d+) (\d+):(\d+):(\d+)/')
+		NAME=$(exiv2 "$i" | perl -lne 'print "$1-$2-$3_$4.$5.$6" if /Image timestamp : (\d+):(\d+):(\d+) (\d+):(\d+):(\d+)/')
 		if [ $? -eq 1 -o -z "$NAME" ]; then
 			echo "exiv2 failed, cannot rename $i"
 			NAME=$i
@@ -56,7 +56,7 @@ do
 	fi
 done
 
-NB_FILES_RENAMED=$(cd $OUTPUT_DIR && ls -l *.jpg *.JPG 2>/dev/null |wc -l)
+NB_FILES_RENAMED=$(cd "$OUTPUT_DIR" && ls -l *.jpg *.JPG 2>/dev/null |wc -l)
 
 
 # stat
