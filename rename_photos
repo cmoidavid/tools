@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Script which renames photos
+
+
+# rename
+find  -maxdepth 1 -name "*.jpg" | while read i
+do
+	NAME=$(exiftool -TAG -CreateDate "$i" -d "%Y-%m-%d.%Hh%Mmin%Ss" -s -s -s)
+	if [ $? -eq 1 -o -z "$NAME" ]; then
+		echo "Retrieving creation date failed"
+		continue
+	fi
+	if [ -f "$NAME.jpg" ]; then
+		echo "$NAME.jpg allready exits, don't rename $i"
+		continue
+	fi
+	# Fix orientation
+	exiftran -a -i "$i"
+	# Rename
+	mv "$i" "$NAME.jpg"
+	echo "Rename $i into $NAME.jpg"
+done
+
+
+
+
+
+
+

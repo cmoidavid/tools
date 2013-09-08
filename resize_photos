@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Script which renames photos
 
 OUTPUT_DIR=$OUTPUT_DIR
 SIZE_MAX=1000
@@ -47,13 +46,13 @@ find  -maxdepth 1 -name "*.jpg" -o -name "*.JPG" -o -name "*.jpeg" | while read 
 do
 	FILESIZE=$(du "$i" | cut -f1)
 	SIZE=$(du -h "$i" | cut -f1)
-	if [ $FILESIZE -gt $SIZE_MAX ]; then 
+	if [ $FILESIZE -lt $SIZE_MAX ]; then 
 		cp "$i" "$OUTPUT_DIR/$i"
 		SIZE=$(du -h "$i" | cut -f1)
 		SIZE2=$(du -h "$OUTPUT_DIR/$i" | cut -f1)
 		echo "Copy $i ($SIZE) into $OUTPUT_DIR/$i ($SIZE2)"
 	else
-		convert "$i" -resize "${RESIZE}>x${RESIZE}>" "$OUTPUT_DIR/$i"
+		convert "$i" -resize "${RESIZE}x${RESIZE}^" "$OUTPUT_DIR/$i"
 		SIZE=$(du -h "$i" | cut -f1)
 		SIZE2=$(du -h "$OUTPUT_DIR/$i" | cut -f1)
 		echo "Resize $i ($SIZE) into $OUTPUT_DIR/$i ($SIZE2)"
@@ -62,20 +61,7 @@ done
 
 # rename
 cd $OUTPUT_DIR
-find  -maxdepth 1 -name "*.jpg" | while read i
-do
-	NAME=$(exiftool -TAG -CreateDate "$i" -d "%Y-%m-%d.%Hh%Mmin%Ss" -s -s -s)
-	if [ $? -eq 1 -o -z "$NAME" ]; then
-		echo "Retrieving creation date failed"
-		continue
-	fi
-	if [ -f "$NAME.jpg" ]; then
-		echo "$NAME.jpg allready exits, don't rename $i"
-		continue
-	fi
-	mv "$i" "$NAME.jpg"
-	echo "Rename $i into $NAME.jpg"
-done
+[ -x /usr/local/bin/rename_photos ] && /usr/local/bin/rename_photos
 
 
 NB_FILES_RENAMED=$(ls -l *.jpg *.JPG 2>/dev/null |wc -l)
